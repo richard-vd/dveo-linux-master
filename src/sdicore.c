@@ -674,7 +674,12 @@ sdi_init_module (void)
 	spin_lock_init (&sdi_iface_lock);
 
 	/* Create a device class */
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(6, 4, 0) || \
+	(defined RHEL_RELEASE_CODE && RHEL_RELEASE_CODE >= RHEL_RELEASE_VERSION(9, 4))
+	sdi_class = class_create (sdi_driver_name);
+#else
 	sdi_class = class_create (THIS_MODULE, sdi_driver_name);
+#endif
 	if (IS_ERR(sdi_class)) {
 		printk (KERN_WARNING "%s: unable to register device class\n",
 			sdi_driver_name);

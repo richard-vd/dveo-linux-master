@@ -824,7 +824,12 @@ lsj_init_module (void)
 		lsj_module_name, MASTER_DRIVER_VERSION, MASTER_DRIVER_DATE);
 
 	/* Create a device class */
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(6, 4, 0) || \
+	(defined RHEL_RELEASE_CODE && RHEL_RELEASE_CODE >= RHEL_RELEASE_VERSION(9, 4))
+	lsj_class = class_create (lsj_module_name);
+#else
 	lsj_class = class_create (THIS_MODULE, lsj_module_name);
+#endif
 	if (IS_ERR(lsj_class)) {
 		err = PTR_ERR(lsj_class);
 		goto NO_CLASS;

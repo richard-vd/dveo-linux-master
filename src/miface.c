@@ -66,10 +66,18 @@ static const char fmt_x[] = "0x%04X\n";
  * @attr: class attribute
  * @buf: output buffer
  **/
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(6, 4, 0) || \
+	(defined RHEL_RELEASE_CODE && RHEL_RELEASE_CODE >= RHEL_RELEASE_VERSION(9, 4))
+ssize_t
+version_show (const struct class *cls,
+	const struct class_attribute *attr,
+	char *buf)
+#else
 ssize_t
 version_show (struct class *cls,
 	struct class_attribute *attr,
 	char *buf)
+#endif
 {
 	return snprintf (buf, PAGE_SIZE, "%s\n", MASTER_DRIVER_VERSION);
 }
@@ -356,7 +364,12 @@ miface_mmap (struct file *filp, struct vm_area_struct *vma)
 	struct master_iface *iface = filp->private_data;
 
 	vma->vm_ops = &mdma_vm_ops;
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(6, 3, 0) || \
+	(defined RHEL_RELEASE_CODE && RHEL_RELEASE_CODE >= RHEL_RELEASE_VERSION(9, 5))
+	vm_flags_set (vma, VM_RESERVED);
+#else
 	vma->vm_flags |= VM_RESERVED;
+#endif
 	vma->vm_private_data = iface->dma;
 	return 0;
 }

@@ -815,7 +815,12 @@ asi_init_module (void)
 	spin_lock_init (&asi_iface_lock);
 
 	/* Create a device class */
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(6, 4, 0) || \
+	(defined RHEL_RELEASE_CODE && RHEL_RELEASE_CODE >= RHEL_RELEASE_VERSION(9, 4))
+	asi_class = class_create (asi_driver_name);
+#else
 	asi_class = class_create (THIS_MODULE, asi_driver_name);
+#endif
 	if (IS_ERR(asi_class)) {
 		printk (KERN_WARNING "%s: unable to create device class\n",
 			asi_driver_name);

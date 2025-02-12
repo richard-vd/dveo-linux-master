@@ -216,7 +216,12 @@ mdev_init (char *name)
 	int err;
 
 	/* Create a device class */
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(6, 4, 0) || \
+	(defined RHEL_RELEASE_CODE && RHEL_RELEASE_CODE >= RHEL_RELEASE_VERSION(9, 4))
+	cls = class_create (name);
+#else
 	cls = class_create (THIS_MODULE, name);
+#endif
 	if (IS_ERR(cls)) {
 		printk (KERN_WARNING "%s: unable to create device class\n",
 			name);

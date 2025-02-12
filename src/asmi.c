@@ -992,7 +992,12 @@ lsa_init_module (void)
 		lsa_module_name, MASTER_DRIVER_VERSION, MASTER_DRIVER_DATE);
 
 	/* Create a device class */
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(6, 4, 0) || \
+	(defined RHEL_RELEASE_CODE && RHEL_RELEASE_CODE >= RHEL_RELEASE_VERSION(9, 4))
+	lsa_class = class_create (lsa_module_name);
+#else
 	lsa_class = class_create (THIS_MODULE, lsa_module_name);
+#endif
 	if (IS_ERR(lsa_class)) {
 		err = PTR_ERR(lsa_class);
 		goto NO_CLASS;
